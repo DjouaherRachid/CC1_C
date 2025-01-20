@@ -1,9 +1,9 @@
 #include <stdbool.h>
 #include <string.h>
-#include <stdio.h>   
-#include <stdlib.h>  
-#include <sys/types.h> 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include "btree.c"  
 
 typedef enum {
   META_COMMAND_SUCCESS,
@@ -16,9 +16,9 @@ typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 
 typedef struct {
   StatementType type;
+  int id;           
+  char name[32];    
 } Statement;
-
-
 
 typedef struct {
   char* buffer;
@@ -35,49 +35,44 @@ InputBuffer* new_input_buffer() {
   return input_buffer;
 }
 
-void print_prompt() { printf("db > "); }
-
-
-
+void print_prompt() { 
+  printf("db > "); 
+}
 
 void read_input(InputBuffer* input_buffer) {
-  ssize_t bytes_read =
-      getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin);
-
+  ssize_t bytes_read = getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin);
   if (bytes_read <= 0) {
     printf("Error reading input\n");
     exit(EXIT_FAILURE);
   }
-
-  // Ignore trailing newline
   input_buffer->input_length = bytes_read - 1;
   input_buffer->buffer[bytes_read - 1] = 0;
 }
-
 
 void close_input_buffer(InputBuffer* input_buffer) {
     free(input_buffer->buffer);
     free(input_buffer);
 }
 
-
 MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
   if (strcmp(input_buffer->buffer, ".exit") == 0) {
     close_input_buffer(input_buffer);
     exit(EXIT_SUCCESS);
   } else {
-    //TODO  here implement handling of other input as .exit
     return META_COMMAND_UNRECOGNIZED_COMMAND;
   }
 }
 
-PrepareResult prepare_statement(InputBuffer* input_buffer,
-                                Statement* statement) {
-
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
   if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
     statement->type = STATEMENT_INSERT;
+    int args_assigned = sscanf(input_buffer->buffer, "insert %d %s", &statement->id, statement->name);
+    if (args_assigned < 2) {
+      return PREPARE_UNRECOGNIZED_STATEMENT;
+    }
     return PREPARE_SUCCESS;
   }
+
   if (strcmp(input_buffer->buffer, "select") == 0) {
     statement->type = STATEMENT_SELECT;
     return PREPARE_SUCCESS;
@@ -88,41 +83,45 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
 
 void execute_statement(Statement* statement) {
   switch (statement->type) {
-    case (STATEMENT_INSERT):
-    //TODO Implement the command here
+    case STATEMENT_INSERT:
+      printf("Insert statement executed. (ID: %d, Name: %s)\n", statement->id, statement->name);
+      insert_row(&table, statement->id, statement->name); 
       break;
-    case (STATEMENT_SELECT):
-      //TODO implement the command here 
+    case STATEMENT_SELECT:
+      printf("Select statement executed.\n");
       break;
   }
 }
 
-
 void repl(void){
   InputBuffer* input_buffer = new_input_buffer();
+
   while (true) {
     print_prompt();
     read_input(input_buffer);
+    
     if (input_buffer->buffer[0] == '.') {
       switch (do_meta_command(input_buffer)) {
-        case (META_COMMAND_SUCCESS):
+        case META_COMMAND_SUCCESS:
           continue;
-        case (META_COMMAND_UNRECOGNIZED_COMMAND):
+        case META_COMMAND_UNRECOGNIZED_COMMAND:
           printf("Unrecognized command '%s'\n", input_buffer->buffer);
           continue;
       }
     }
+
     Statement statement;
     switch (prepare_statement(input_buffer, &statement)) {
-      case (PREPARE_SUCCESS):
+      case PREPARE_SUCCESS:
         printf("recognized statement\n");
         break;
-      case (PREPARE_UNRECOGNIZED_STATEMENT):
-        printf("Unrecognized keyword at start of '%s'.\n",
-               input_buffer->buffer);
+      case PREPARE_UNRECOGNIZED_STATEMENT:
+        printf("Unrecognized keyword at start of '%s'.\n", input_buffer->buffer);
         continue;
     }
-     execute_statement(&statement);
-     printf("Executed.\n");
+
+    execute_statement(&statement);
+    printf("Executed.\n");
   }
 }
+
