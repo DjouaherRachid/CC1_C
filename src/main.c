@@ -1,13 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "repl.c"
-#include <stdbool.h>
-#include <string.h>
+void repl(void);
 
+int main(int argc, char* argv[], char* envp[]) {
+    (void)argc;
+    (void)argv;
+    (void)envp;
 
-int main(int argc, char* argv[], char* envp[]){
-  
-  repl();
-  return 0;
-  
+    repl();
+    return 0;
 }
+
