@@ -1,2 +1,4 @@
 # class_db
-A simple skeleton code in C for a database
+## name : DJOUAHER
+## surname : Rachid
+## class : 3SI3
