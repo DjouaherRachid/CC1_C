@@ -1,15 +1,6 @@
+#include "btree.h"
 #include <stdio.h>
 #include <string.h>
-
-typedef struct {
-    int id;
-    char name[32];
-} Row;
-
-typedef struct {
-    Row rows[1000]; 
-    int row_count;
-} Table;
 
 Table table = { .row_count = 0 };
 

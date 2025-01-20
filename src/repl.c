@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include "btree.c"  
+#include "btree.h"  
 
 typedef enum {
   META_COMMAND_SUCCESS,
