@@ -15,7 +15,10 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJ) $(TARGET) test
 
 .PHONY: all clean
 
+test: src/test.c src/btree.c
+	$(CC) $(CFLAGS) -o test src/test.c src/btree.c
+	./test
