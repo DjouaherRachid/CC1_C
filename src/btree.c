@@ -73,3 +73,31 @@ void delete_row(Table* table, int id) {
 
     printf("Row with ID %d deleted.\n", id);
 }
+
+void save_table(const char* filename) {
+    FILE* file = fopen(filename, "wb");  
+    if (file == NULL) {
+        printf("Error opening file for writing: %s\n", filename);
+        return;
+    }
+
+    fwrite(&table, sizeof(Table), 1, file);
+
+    fclose(file);
+    printf("Table saved to %s\n", filename);
+}
+
+#include <stdio.h>
+
+void load_table(const char* filename) {
+    FILE* file = fopen(filename, "rb");  
+    if (file == NULL) {
+        printf("Error opening file for reading: %s\n", filename);
+        return;
+    }
+
+    fread(&table, sizeof(Table), 1, file);
+
+    fclose(file);
+    printf("Table loaded from %s\n", filename);
+}

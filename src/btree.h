@@ -24,5 +24,7 @@ void select_rows(Table* table);
 int row_exists(Table* table, int id) ;
 void select_row_by_id(Table* table, int id);
 void delete_row(Table* table, int id);
+void load_table(const char* filename);
+void save_table(const char* filename);
 
 #endif

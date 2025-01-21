@@ -55,12 +55,26 @@ void close_input_buffer(InputBuffer* input_buffer) {
 }
 
 MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
-  if (strcmp(input_buffer->buffer, ".exit") == 0) {
-    close_input_buffer(input_buffer);
-    exit(EXIT_SUCCESS);
-  } else {
+    if (strcmp(input_buffer->buffer, ".exit") == 0) {
+        close_input_buffer(input_buffer);
+        exit(EXIT_SUCCESS);
+    }
+
+    if (strncmp(input_buffer->buffer, ".save", 5) == 0) {
+        char filename[256];
+        sscanf(input_buffer->buffer, ".save %s", filename);
+        save_table(filename);
+        return META_COMMAND_SUCCESS;
+    }
+
+    if (strncmp(input_buffer->buffer, ".load", 5) == 0) {
+        char filename[256];
+        sscanf(input_buffer->buffer, ".load %s", filename);
+        load_table(filename);
+        return META_COMMAND_SUCCESS;
+    }
+
     return META_COMMAND_UNRECOGNIZED_COMMAND;
-  }
 }
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
