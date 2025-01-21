@@ -5,6 +5,11 @@
 Table table = { .row_count = 0 };
 
 void insert_row(Table* table, int id, const char* name) {
+    if (row_exists(table, id)) {
+        printf("Error: Row with ID %d already exists.\n", id);
+        return;  
+    }
+
     if (table->row_count >= 1000) {
         printf("Table is full.\n");
         return;
@@ -34,4 +39,14 @@ void select_row_by_id(Table* table, int id) {
         }
     }
     printf("Row with ID %d not found.\n", id);
+}
+
+// Function to check if a row with the given ID already exists in the table
+int row_exists(Table* table, int id) {
+    for (int i = 0; i < table->row_count; i++) {
+        if (table->rows[i].id == id) {
+            return 1;  // ID already exists
+        }
+    }
+    return 0;  // ID does not exist
 }

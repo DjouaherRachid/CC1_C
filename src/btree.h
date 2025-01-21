@@ -21,6 +21,7 @@ extern DBState db_state;
 
 void insert_row(Table* table, int id, const char* name);
 void select_rows(Table* table);
+int row_exists(Table* table, int id) ;
 void select_row_by_id(Table* table, int id);
 
 #endif
