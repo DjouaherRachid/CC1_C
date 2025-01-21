@@ -64,33 +64,49 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
 }
 
 PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
-  if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
-    statement->type = STATEMENT_INSERT;
-    int args_assigned = sscanf(input_buffer->buffer, "insert %d %s", &statement->id, statement->name);
-    if (args_assigned < 2) {
-      return PREPARE_UNRECOGNIZED_STATEMENT;
+    if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
+        statement->type = STATEMENT_INSERT;
+        int args_assigned = sscanf(input_buffer->buffer, "insert %d %s", &statement->id, statement->name);
+        if (args_assigned < 2) {
+            return PREPARE_UNRECOGNIZED_STATEMENT;
+        }
+        return PREPARE_SUCCESS;
     }
-    return PREPARE_SUCCESS;
-  }
 
-  if (strcmp(input_buffer->buffer, "select") == 0) {
-    statement->type = STATEMENT_SELECT;
-    return PREPARE_SUCCESS;
-  }
+    if (strncmp(input_buffer->buffer, "select", 6) == 0) {
+        if (strcmp(input_buffer->buffer, "select *") == 0) {
+            statement->type = STATEMENT_SELECT;
+            statement->id = -1; // Indicate that we want all rows
+            return PREPARE_SUCCESS;
+        } else {
+            statement->type = STATEMENT_SELECT;
+            int args_assigned = sscanf(input_buffer->buffer, "select %d", &statement->id);
+            if (args_assigned < 1) {
+                return PREPARE_UNRECOGNIZED_STATEMENT;
+            }
+            return PREPARE_SUCCESS;
+        }
+    }
 
-  return PREPARE_UNRECOGNIZED_STATEMENT;
+    return PREPARE_UNRECOGNIZED_STATEMENT;
 }
 
 void execute_statement(Statement* statement) {
-  switch (statement->type) {
-    case STATEMENT_INSERT:
-      printf("Insert statement executed. (ID: %d, Name: %s)\n", statement->id, statement->name);
-      insert_row(&table, statement->id, statement->name); 
-      break;
-    case STATEMENT_SELECT:
-      printf("Select statement executed.\n");
-      break;
-  }
+    switch (statement->type) {
+        case STATEMENT_INSERT:
+            printf("Insert statement executed. (ID: %d, Name: %s)\n", statement->id, statement->name);
+            insert_row(&table, statement->id, statement->name);
+            break;
+        case STATEMENT_SELECT:
+            if (statement->id == -1) {
+                // Select all rows
+                select_rows(&table);
+            } else {
+                // Select row by ID
+                select_row_by_id(&table, statement->id);
+            }
+            break;
+    }
 }
 
 void repl(void){
