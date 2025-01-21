@@ -13,6 +13,12 @@ typedef struct {
 
 extern Table table;
 
+typedef struct {
+    int current_row;
+} DBState;
+
+extern DBState db_state;
+
 void insert_row(Table* table, int id, const char* name);
 
 #endif
