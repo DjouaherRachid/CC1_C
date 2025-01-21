@@ -12,7 +12,7 @@ typedef enum {
 
 typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT } PrepareResult;
 
-typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
+typedef enum { STATEMENT_INSERT, STATEMENT_SELECT, STATEMENT_DELETE } StatementType;
 
 typedef struct {
   StatementType type;
@@ -73,6 +73,15 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
         return PREPARE_SUCCESS;
     }
 
+  if (strncmp(input_buffer->buffer, "delete", 6) == 0) {
+    statement->type = STATEMENT_DELETE;
+    int args_assigned = sscanf(input_buffer->buffer, "delete %d", &statement->id);
+    if (args_assigned < 1) {
+      return PREPARE_UNRECOGNIZED_STATEMENT;
+    }
+    return PREPARE_SUCCESS;
+  }
+
     if (strncmp(input_buffer->buffer, "select", 6) == 0) {
         if (strcmp(input_buffer->buffer, "select *") == 0) {
             statement->type = STATEMENT_SELECT;
@@ -106,6 +115,11 @@ void execute_statement(Statement* statement) {
                 select_row_by_id(&table, statement->id);
             }
             break;
+	case STATEMENT_DELETE:
+      		printf("Delete statement executed. (ID: %d)\n", statement->id);
+      		delete_row(&table, statement->id); 
+      		break;
+
     }
 }
 

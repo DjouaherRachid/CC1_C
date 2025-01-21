@@ -50,3 +50,26 @@ int row_exists(Table* table, int id) {
     }
     return 0;  // ID does not exist
 }
+
+void delete_row(Table* table, int id) {
+    int row_index = -1;
+    for (int i = 0; i < table->row_count; i++) {
+        if (table->rows[i].id == id) {
+            row_index = i;
+            break;
+        }
+    }
+
+    if (row_index == -1) {
+        printf("Error: Row with ID %d does not exist.\n", id);
+        return;
+    }
+
+    for (int i = row_index; i < table->row_count - 1; i++) {
+        table->rows[i] = table->rows[i + 1];
+    }
+
+    table->row_count--;
+
+    printf("Row with ID %d deleted.\n", id);
+}
