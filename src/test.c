@@ -1,5 +1,7 @@
 #include <assert.h>
 #include "btree.h"
+#include <string.h>
+#include <stdio.h>
 
 void test_insert_row() {
     Table test_table = { .row_count = 0 };
